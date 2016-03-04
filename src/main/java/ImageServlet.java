@@ -13,12 +13,22 @@ import com.google.appengine.api.datastore.Blob;
 import java.io.IOException;
 import java.util.Date;
 import javax.servlet.http.*;
+import javax.servlet.http.Part;
+import javax.servlet.ServletException;
+import java.util.logging.Level;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.InputStream;
+import java.util.List;
+
+import org.apache.commons.fileupload.*;
+import org.apache.commons.io.*;
+import org.apache.commons.fileupload.servlet.*;
+import org.apache.commons.fileupload.disk.*;
+import java.util.logging.Logger;
 
 import javax.servlet.annotation.MultipartConfig;
 
@@ -33,27 +43,40 @@ import com.googlecode.objectify.ObjectifyService;
  */
  @MultipartConfig
 public class ImageServlet extends HttpServlet {
+	
+	private static final Logger log = Logger.getLogger(ImageServlet.class.getName());
 
   // Process the http POST of the form
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-    UserService userService = UserServiceFactory.getUserService();
-    User user = userService.getCurrentUser();  // Find out who the user is.
+	try
+	{
+		UserService userService = UserServiceFactory.getUserService();
+		User user = userService.getCurrentUser();  // Find out who the user is.
+		String imageName = req.getParameter("imageName");
+		
+		log.log(Level.INFO, imageName);
+		
+		ServletFileUpload upload = new ServletFileUpload();
+		FileItemIterator iter = upload.getItemIterator(req);
+		FileItemStream imageItem = iter.next();
+		InputStream imgStream = imageItem.openStream();
 
-    String imageName = req.getParameter("imageName");
-	Part part = req.getPart("image");
-	InputStream is = part.getInputStream();
-	byte[] bytes;
-	is.read(bytes);
-    Blob image = new Blob(bytes);
-    
-	Image newImage = new Image(imageName, image);
+		// construct our entity objects
+		Blob imageBlob = new Blob(IOUtils.toByteArray(imgStream));
 
-    // Use Objectify to save the greeting and now() is used to make the call synchronously as we
-    // will immediately get a new page using redirect and we want the data to be present.
-    ObjectifyService.ofy().save().entity(newImage).now();
+		Image newImage = new Image(imageName, imageBlob);
 
+		// Use Objectify to save the greeting and now() is used to make the call synchronously as we
+		// will immediately get a new page using redirect and we want the data to be present.
+		ObjectifyService.ofy().save().entity(newImage).now();
+	}
+	catch(FileUploadException e)
+	{
+		e.printStackTrace();
+	}
+	
     resp.sendRedirect("/guestbook.jsp");
   }
 }
