@@ -7,10 +7,18 @@
       <servlet-name>sign</servlet-name>
       <servlet-class>com.example.guestbook.SignGuestbookServlet</servlet-class>
     </servlet>
+	<servlet>
+      <servlet-name>image</servlet-name>
+      <servlet-class>com.example.guestbook.ImageServlet</servlet-class>
+    </servlet>
 
     <servlet-mapping>
       <servlet-name>sign</servlet-name>
       <url-pattern>/sign</url-pattern>
+    </servlet-mapping>
+	<servlet-mapping>
+      <servlet-name>image</servlet-name>
+      <url-pattern>/image</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

@@ -91,6 +91,12 @@
     <input type="hidden" name="guestbookName" value="${fn:escapeXml(guestbookName)}"/>
 </form>
 
+<form action="/image" method="post" enctype="multipart/form-data">
+    <div><input type="text" name="imageName"></input></div>
+	<div><input type="file" name="image" accept="image/*"></input></div>
+    <div><input type="submit" value="Post Image"/></div>
+</form>
+
 
 <form action="/guestbook.jsp" method="get">
     <div><input type="text" name="guestbookName" value="${fn:escapeXml(guestbookName)}"/></div>
