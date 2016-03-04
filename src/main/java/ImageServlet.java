@@ -54,9 +54,6 @@ public class ImageServlet extends HttpServlet {
 	{
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();  // Find out who the user is.
-		String imageName = req.getParameter("imageName");
-		
-		log.log(Level.INFO, imageName);
 		
 		ServletFileUpload upload = new ServletFileUpload();
 		FileItemIterator iter = upload.getItemIterator(req);
@@ -65,6 +62,12 @@ public class ImageServlet extends HttpServlet {
 
 		// construct our entity objects
 		Blob imageBlob = new Blob(IOUtils.toByteArray(imgStream));
+		
+		imageItem = iter.next();
+		imgStream = imageItem.openStream();
+		String imageName = IOUtils.toByteArray(imgStream).toString();
+		
+		log.log(Level.INFO, imageName);
 
 		Image newImage = new Image(imageName, imageBlob);
 
